@@ -50,6 +50,13 @@
     transform: translateX(0);
   }
 
+  .mobile-drawer .app-sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+    border-right: none;
+  }
+
   .mobile-drawer-overlay {
     position: fixed;
     inset: 0;
