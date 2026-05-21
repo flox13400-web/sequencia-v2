@@ -1,12 +1,18 @@
 import { Link, useLocation } from 'wouter';
 import {
-  LayoutDashboard, BookOpen, FileText, Layers, Calendar, HelpCircle, Folder
+  LayoutDashboard, BookOpen, FileText, Layers, Calendar, HelpCircle, Folder, Plus
 } from 'lucide-react';
 import '@/styles/components/layout.css';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Tableau de bord', icon: LayoutDashboard },
-  { href: '/bibliotheque', label: 'Bibliothèque', icon: BookOpen },
+];
+
+const BROWSE_ITEMS = [
+  { href: '/programmes', label: 'Programmes', icon: Folder },
+  { href: '/sequences', label: 'Séquences', icon: Layers },
+  { href: '/seances', label: 'Séances', icon: Calendar },
+  { href: '/bibliotheque', label: 'Activités', icon: BookOpen },
 ];
 
 const CREATE_ITEMS = [
@@ -19,12 +25,27 @@ const CREATE_ITEMS = [
 export default function Sidebar({ inDrawer = false }) {
   const [location] = useLocation();
 
-  const isActive = (href) => location === href;
+  const isActive = (href) => {
+    if (href === '/') return location === '/';
+    return location === href || location.startsWith(href.replace(/s$/, '/'));
+  };
 
   return (
     <aside className={`app-sidebar${inDrawer ? '' : ' desktop-only'}`}>
       <nav className="sidebar-nav">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
+          <Link
+            key={href}
+            href={href}
+            className={`sidebar-nav-item ${isActive(href) ? 'active' : ''}`}
+          >
+            <Icon size="var(--icon-size-md)" strokeWidth="var(--icon-stroke-default)" />
+            {label}
+          </Link>
+        ))}
+
+        <div className="sidebar-section-title">Consulter</div>
+        {BROWSE_ITEMS.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
             href={href}
@@ -50,7 +71,7 @@ export default function Sidebar({ inDrawer = false }) {
         <div className="sidebar-section-title">Autres</div>
         <Link
           href="/aide"
-          className={`sidebar-nav-item ${isActive('/aide') ? 'active' : ''}`}
+          className={`sidebar-nav-item ${location === '/aide' ? 'active' : ''}`}
         >
           <HelpCircle size="var(--icon-size-md)" strokeWidth="var(--icon-stroke-default)" />
           Aide

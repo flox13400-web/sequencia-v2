@@ -6,6 +6,9 @@ import MobileNav from '@/components/layout/MobileNav';
 import Footer from '@/components/layout/Footer';
 import DashboardPage from '@/pages/DashboardPage';
 import LibraryPage from '@/pages/LibraryPage';
+import ProgrammesPage from '@/pages/ProgrammesPage';
+import SequencesPage from '@/pages/SequencesPage';
+import SeancesPage from '@/pages/SeancesPage';
 import ActivityBuilderPage from '@/pages/ActivityBuilderPage';
 import SeanceBuilderPage from '@/pages/SeanceBuilderPage';
 import SequenceBuilderPage from '@/pages/SequenceBuilderPage';
@@ -131,6 +134,9 @@ export default function App() {
           <Switch>
             <Route path="/" component={DashboardPage} />
             <Route path="/bibliotheque" component={LibraryPage} />
+            <Route path="/programmes" component={ProgrammesPage} />
+            <Route path="/sequences" component={SequencesPage} />
+            <Route path="/seances" component={SeancesPage} />
 
             <Route path="/activite/nouvelle" component={ActivityBuilderPage} />
             <Route path="/activite/:id" component={ActivityBuilderPage} />
