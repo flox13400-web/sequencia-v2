@@ -14,7 +14,10 @@ import HelpPage from '@/pages/HelpPage';
 import OnboardingModal from '@/components/modals/OnboardingModal';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { useActivitesStore } from '@/stores/activitesStore';
-import { parseSqaFile, readFileAsText } from '@/utils/importSqa';
+import { useSeancesStore } from '@/stores/seancesStore';
+import { useSequencesStore } from '@/stores/sequencesStore';
+import { useProgrammesStore } from '@/stores/programmesStore';
+import { parseSqaFile, readFileAsText, importSqaData } from '@/utils/importSqa';
 
 function NotFoundPage() {
   return (
@@ -27,10 +30,13 @@ function NotFoundPage() {
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const fileInputRef = useRef(null);
   const { showOnboarding, dismissOnboarding } = useOnboarding();
   const addActivite = useActivitesStore((s) => s.addActivite);
+  const addSeance = useSeancesStore((s) => s.addSeance);
+  const addSequence = useSequencesStore((s) => s.addSequence);
+  const addProgramme = useProgrammesStore((s) => s.addProgramme);
 
   useEffect(() => {
     setSidebarOpen(false);
@@ -47,9 +53,22 @@ export default function App() {
         const text = await readFileAsText(file);
         const { data, errors } = parseSqaFile(text);
         if (errors.length > 0) return;
-        if (data.dictionnaires?.activites) {
-          data.dictionnaires.activites.forEach((a) => addActivite({ ...a, origine: 'importee_sqa' }));
-        }
+        const { activites } = useActivitesStore.getState();
+        const { seances } = useSeancesStore.getState();
+        const { sequences } = useSequencesStore.getState();
+        const { programmes } = useProgrammesStore.getState();
+        const result = importSqaData(
+          data,
+          { addActivite, addSeance, addSequence, addProgramme },
+          {
+            activiteIds: activites.map((a) => a.id),
+            seanceIds: seances.map((s) => s.id),
+            sequenceIds: sequences.map((s) => s.id),
+            programmeIds: programmes.map((p) => p.id),
+          }
+        );
+        if (result.programmeId) navigate(`/programme/${result.programmeId}`);
+        else if (result.activites > 0) navigate('/bibliotheque');
       } catch { /* non bloquant */ }
     };
     document.addEventListener('dragover', prevent);
@@ -58,7 +77,7 @@ export default function App() {
       document.removeEventListener('dragover', prevent);
       document.removeEventListener('drop', handleDrop);
     };
-  }, [addActivite]);
+  }, [addActivite, addSeance, addSequence, addProgramme, navigate]);
 
   const handleOnboardingImportFile = () => {
     dismissOnboarding();
@@ -73,9 +92,21 @@ export default function App() {
       if (!res.ok) return;
       const text = await res.text();
       const { data } = parseSqaFile(text);
-      if (data?.dictionnaires?.activites) {
-        data.dictionnaires.activites.forEach((a) => addActivite({ ...a, origine: 'importee_sqa' }));
-      }
+      if (!data) return;
+      const { activites } = useActivitesStore.getState();
+      const { seances } = useSeancesStore.getState();
+      const { sequences } = useSequencesStore.getState();
+      const { programmes } = useProgrammesStore.getState();
+      importSqaData(
+        data,
+        { addActivite, addSeance, addSequence, addProgramme },
+        {
+          activiteIds: activites.map((a) => a.id),
+          seanceIds: seances.map((s) => s.id),
+          sequenceIds: sequences.map((s) => s.id),
+          programmeIds: programmes.map((p) => p.id),
+        }
+      );
     } catch { /* fichier pas encore disponible */ }
   };
 
@@ -140,8 +171,23 @@ export default function App() {
           if (!file) return;
           const text = await readFileAsText(file);
           const { data } = parseSqaFile(text);
-          if (data?.dictionnaires?.activites) {
-            data.dictionnaires.activites.forEach((a) => addActivite({ ...a, origine: 'importee_sqa' }));
+          if (data) {
+            const { activites } = useActivitesStore.getState();
+            const { seances } = useSeancesStore.getState();
+            const { sequences } = useSequencesStore.getState();
+            const { programmes } = useProgrammesStore.getState();
+            const result = importSqaData(
+              data,
+              { addActivite, addSeance, addSequence, addProgramme },
+              {
+                activiteIds: activites.map((a) => a.id),
+                seanceIds: seances.map((s) => s.id),
+                sequenceIds: sequences.map((s) => s.id),
+                programmeIds: programmes.map((p) => p.id),
+              }
+            );
+            if (result.programmeId) navigate(`/programme/${result.programmeId}`);
+            else if (result.activites > 0) navigate('/bibliotheque');
           }
           e.target.value = '';
         }}

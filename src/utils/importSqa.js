@@ -90,3 +90,61 @@ export function detectSqaType(sqaData) {
   if (sqaData.tuto) return 'tuto';
   return 'unknown';
 }
+
+/**
+ * Importe toutes les entités d'un fichier SQA parsé dans les stores.
+ * Ignore silencieusement les entités dont l'ID existe déjà.
+ * Gère la normalisation des noms de champs entre les variantes SQA.
+ *
+ * @param {object} data - Données SQA parsées (résultat de parseSqaFile)
+ * @param {{ addActivite, addSeance, addSequence, addProgramme }} actions - Actions des stores
+ * @param {{ activiteIds?, seanceIds?, sequenceIds?, programmeIds? }} existingIds - IDs déjà présents
+ * @returns {{ activites: number, seances: number, sequences: number, programmes: number, programmeId: string|null }}
+ */
+export function importSqaData(data, actions, existingIds = {}) {
+  const { addActivite, addSeance, addSequence, addProgramme } = actions;
+  const activiteIds = new Set(existingIds.activiteIds ?? []);
+  const seanceIds = new Set(existingIds.seanceIds ?? []);
+  const sequenceIds = new Set(existingIds.sequenceIds ?? []);
+  const programmeIds = new Set(existingIds.programmeIds ?? []);
+  const counts = { activites: 0, seances: 0, sequences: 0, programmes: 0, programmeId: null };
+
+  for (const a of (data.dictionnaires?.activites ?? [])) {
+    if (!activiteIds.has(a.id)) {
+      addActivite({ ...a, origine: 'importee_sqa' });
+      counts.activites++;
+    }
+  }
+
+  for (const s of (data.dictionnaires?.seances ?? [])) {
+    if (!seanceIds.has(s.id)) {
+      addSeance({
+        ...s,
+        opo_verbe_action: s.opo_verbe_action ?? s.opo_verbe ?? '',
+      });
+      counts.seances++;
+    }
+  }
+
+  for (const seq of (data.dictionnaires?.sequences ?? [])) {
+    if (!sequenceIds.has(seq.id)) {
+      addSequence({
+        ...seq,
+        objectif_verbe_action: seq.objectif_verbe_action ?? seq.verbe_action ?? '',
+      });
+      counts.sequences++;
+    }
+  }
+
+  if (data.programme && !programmeIds.has(data.programme.id)) {
+    const prog = data.programme;
+    addProgramme({
+      ...prog,
+      objectif_verbe_action: prog.objectif_verbe_action ?? prog.verbe_action ?? '',
+    });
+    counts.programmes++;
+    counts.programmeId = prog.id;
+  }
+
+  return counts;
+}

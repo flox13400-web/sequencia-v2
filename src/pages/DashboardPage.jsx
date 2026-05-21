@@ -7,7 +7,7 @@ import { useActivitesStore } from '@/stores/activitesStore';
 import { useProgrammesStore } from '@/stores/programmesStore';
 import { useSequencesStore } from '@/stores/sequencesStore';
 import { useSeancesStore } from '@/stores/seancesStore';
-import { readFileAsText, parseSqaFile, detectSqaType } from '@/utils/importSqa';
+import { readFileAsText, parseSqaFile, importSqaData } from '@/utils/importSqa';
 import '@/styles/pages/dashboard.css';
 
 const HEX_CELLS = [
@@ -102,9 +102,13 @@ export default function DashboardPage() {
   const fileInputRef = useRef(null);
 
   const activites = useActivitesStore((s) => s.activites);
+  const addActivite = useActivitesStore((s) => s.addActivite);
   const programmes = useProgrammesStore((s) => s.programmes);
+  const addProgramme = useProgrammesStore((s) => s.addProgramme);
   const sequences = useSequencesStore((s) => s.sequences);
+  const addSequence = useSequencesStore((s) => s.addSequence);
   const seances = useSeancesStore((s) => s.seances);
+  const addSeance = useSeancesStore((s) => s.addSeance);
 
   const stats = [
     { label: 'Activités', count: activites.length },
@@ -126,8 +130,17 @@ export default function DashboardPage() {
       const text = await readFileAsText(file);
       const { data, errors } = parseSqaFile(text);
       if (errors.length > 0) { setImportError(errors.join(' ')); return; }
-      const type = detectSqaType(data);
-      if (type === 'programme') navigate('/programme/nouveau?import=1');
+      const result = importSqaData(
+        data,
+        { addActivite, addSeance, addSequence, addProgramme },
+        {
+          activiteIds: activites.map((a) => a.id),
+          seanceIds: seances.map((s) => s.id),
+          sequenceIds: sequences.map((s) => s.id),
+          programmeIds: programmes.map((p) => p.id),
+        }
+      );
+      if (result.programmeId) navigate(`/programme/${result.programmeId}`);
       else navigate('/bibliotheque');
     } catch {
       setImportError('Impossible de lire le fichier.');

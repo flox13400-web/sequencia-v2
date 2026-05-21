@@ -5,7 +5,7 @@ import { useActivitesStore } from '@/stores/activitesStore';
 import { useSeancesStore } from '@/stores/seancesStore';
 import { useSequencesStore } from '@/stores/sequencesStore';
 import { useProgrammesStore } from '@/stores/programmesStore';
-import { readFileAsText, parseSqaFile } from '@/utils/importSqa';
+import { readFileAsText, parseSqaFile, importSqaData } from '@/utils/importSqa';
 
 const FAQ = [
   {
@@ -33,19 +33,36 @@ const FAQ = [
 export default function HelpPage() {
   const fileInputRef = useRef(null);
   const addActivite = useActivitesStore((s) => s.addActivite);
+  const addSeance = useSeancesStore((s) => s.addSeance);
+  const addSequence = useSequencesStore((s) => s.addSequence);
+  const addProgramme = useProgrammesStore((s) => s.addProgramme);
+
+  const doImport = (data) => {
+    const { activites } = useActivitesStore.getState();
+    const { seances } = useSeancesStore.getState();
+    const { sequences } = useSequencesStore.getState();
+    const { programmes } = useProgrammesStore.getState();
+    return importSqaData(
+      data,
+      { addActivite, addSeance, addSequence, addProgramme },
+      {
+        activiteIds: activites.map((a) => a.id),
+        seanceIds: seances.map((s) => s.id),
+        sequenceIds: sequences.map((s) => s.id),
+        programmeIds: programmes.map((p) => p.id),
+      }
+    );
+  };
 
   const handleImportTuto = async () => {
     try {
-      const resp = await import.meta.env.BASE_URL;
       const url = import.meta.env.BASE_URL + 'tutoriels/tuto-sequencia-lite.sqa';
       const res = await fetch(url);
       if (!res.ok) { alert('Le fichier tutoriel n\'est pas encore disponible. Il sera intégré dans une prochaine version.'); return; }
       const text = await res.text();
       const { data, errors } = parseSqaFile(text);
       if (errors.length > 0) { alert(errors.join('\n')); return; }
-      if (data.dictionnaires?.activites) {
-        data.dictionnaires.activites.forEach((a) => addActivite({ ...a, origine: 'importee_sqa' }));
-      }
+      doImport(data);
       alert('Tutoriel importé avec succès !');
     } catch {
       alert('Le fichier tutoriel n\'est pas encore disponible.');
@@ -58,10 +75,9 @@ export default function HelpPage() {
       const text = await readFileAsText(file);
       const { data, errors } = parseSqaFile(text);
       if (errors.length > 0) { alert(errors.join('\n')); return; }
-      if (data.dictionnaires?.activites) {
-        data.dictionnaires.activites.forEach((a) => addActivite({ ...a, origine: 'importee_sqa' }));
-      }
-      alert('Fichier importé avec succès !');
+      const result = doImport(data);
+      const total = result.activites + result.seances + result.sequences + result.programmes;
+      alert(`Importé : ${total} élément(s) — ${result.activites} activité(s), ${result.seances} séance(s), ${result.sequences} séquence(s), ${result.programmes} programme(s).`);
     } catch {
       alert('Impossible de lire le fichier.');
     }
