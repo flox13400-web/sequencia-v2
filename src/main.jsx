@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Router } from 'wouter';
+import { useHashLocation } from 'wouter/use-hash-location';
 import { initDB } from '@/db/indexedDB';
 import App from './App.jsx';
 import './index.css';
@@ -19,11 +20,9 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Router base={base}>
+    <Router hook={useHashLocation}>
       <App />
     </Router>
   </StrictMode>
