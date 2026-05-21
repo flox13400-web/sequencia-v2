@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Route, Switch, useLocation } from 'wouter';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
@@ -11,6 +11,10 @@ import SeanceBuilderPage from '@/pages/SeanceBuilderPage';
 import SequenceBuilderPage from '@/pages/SequenceBuilderPage';
 import ProgramBuilderPage from '@/pages/ProgramBuilderPage';
 import HelpPage from '@/pages/HelpPage';
+import OnboardingModal from '@/components/modals/OnboardingModal';
+import { useOnboarding } from '@/hooks/useOnboarding';
+import { useActivitesStore } from '@/stores/activitesStore';
+import { parseSqaFile, readFileAsText } from '@/utils/importSqa';
 
 function NotFoundPage() {
   return (
@@ -24,8 +28,10 @@ function NotFoundPage() {
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [location] = useLocation();
+  const fileInputRef = useRef(null);
+  const { showOnboarding, dismissOnboarding } = useOnboarding();
+  const addActivite = useActivitesStore((s) => s.addActivite);
 
-  // Ferme le drawer mobile à chaque changement de route
   useEffect(() => {
     setSidebarOpen(false);
   }, [location]);
@@ -33,13 +39,45 @@ export default function App() {
   // Drag & drop global de fichiers .sqa
   useEffect(() => {
     const prevent = (e) => { e.preventDefault(); e.stopPropagation(); };
+    const handleDrop = async (e) => {
+      e.preventDefault();
+      const file = e.dataTransfer?.files?.[0];
+      if (!file || (!file.name.endsWith('.sqa') && !file.name.endsWith('.json'))) return;
+      try {
+        const text = await readFileAsText(file);
+        const { data, errors } = parseSqaFile(text);
+        if (errors.length > 0) return;
+        if (data.dictionnaires?.activites) {
+          data.dictionnaires.activites.forEach((a) => addActivite({ ...a, origine: 'importee_sqa' }));
+        }
+      } catch { /* non bloquant */ }
+    };
     document.addEventListener('dragover', prevent);
-    document.addEventListener('drop', prevent);
+    document.addEventListener('drop', handleDrop);
     return () => {
       document.removeEventListener('dragover', prevent);
-      document.removeEventListener('drop', prevent);
+      document.removeEventListener('drop', handleDrop);
     };
-  }, []);
+  }, [addActivite]);
+
+  const handleOnboardingImportFile = () => {
+    dismissOnboarding();
+    fileInputRef.current?.click();
+  };
+
+  const handleOnboardingImportTuto = async () => {
+    dismissOnboarding();
+    try {
+      const url = import.meta.env.BASE_URL + 'tutoriels/tuto-sequencia-lite.sqa';
+      const res = await fetch(url);
+      if (!res.ok) return;
+      const text = await res.text();
+      const { data } = parseSqaFile(text);
+      if (data?.dictionnaires?.activites) {
+        data.dictionnaires.activites.forEach((a) => addActivite({ ...a, origine: 'importee_sqa' }));
+      }
+    } catch { /* fichier pas encore disponible */ }
+  };
 
   return (
     <div className="app-shell">
@@ -84,6 +122,30 @@ export default function App() {
 
       <Footer />
       <MobileNav />
+
+      <OnboardingModal
+        isOpen={showOnboarding}
+        onImportTuto={handleOnboardingImportTuto}
+        onImportFile={handleOnboardingImportFile}
+        onDismiss={dismissOnboarding}
+      />
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".sqa,.json"
+        style={{ display: 'none' }}
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          const text = await readFileAsText(file);
+          const { data } = parseSqaFile(text);
+          if (data?.dictionnaires?.activites) {
+            data.dictionnaires.activites.forEach((a) => addActivite({ ...a, origine: 'importee_sqa' }));
+          }
+          e.target.value = '';
+        }}
+      />
     </div>
   );
 }
