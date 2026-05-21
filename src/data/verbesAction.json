@@ -1,0 +1,68 @@
+[
+  {
+    "niveau": 1,
+    "nom": "Mémoriser",
+    "description": "Rappeler des informations mémorisées",
+    "verbes": [
+      "Définir", "Lister", "Nommer", "Identifier", "Répéter", "Reconnaître",
+      "Citer", "Énumérer", "Mémoriser", "Localiser", "Étiqueter", "Sélectionner",
+      "Indiquer", "Réciter", "Décrire", "Inscrire", "Souligner", "Pointer",
+      "Reproduire", "Désigner"
+    ]
+  },
+  {
+    "niveau": 2,
+    "nom": "Comprendre",
+    "description": "Construire du sens à partir d'informations",
+    "verbes": [
+      "Expliquer", "Résumer", "Classifier", "Discuter", "Traduire",
+      "Illustrer", "Reformuler", "Interpréter", "Distinguer", "Convertir",
+      "Estimer", "Généraliser", "Paraphraser", "Donner un exemple", "Schématiser",
+      "Représenter", "Identifier les implications", "Contraster", "Différencier", "Décrire"
+    ]
+  },
+  {
+    "niveau": 3,
+    "nom": "Appliquer",
+    "description": "Utiliser une procédure dans une situation donnée",
+    "verbes": [
+      "Démontrer", "Utiliser", "Résoudre", "Calculer", "Expérimenter",
+      "Appliquer", "Modifier", "Mettre en œuvre", "Exécuter", "Pratiquer",
+      "Manipuler", "Construire", "Compléter", "Préparer", "Produire",
+      "Adapter", "Implémenter", "Transposer", "Mettre en pratique", "Réaliser"
+    ]
+  },
+  {
+    "niveau": 4,
+    "nom": "Analyser",
+    "description": "Décomposer en parties et comprendre leurs relations",
+    "verbes": [
+      "Comparer", "Catégoriser", "Examiner", "Contraster", "Différencier",
+      "Déduire", "Structurer", "Organiser", "Décomposer", "Distinguer",
+      "Identifier les composantes", "Relier", "Séparer", "Inférer", "Disséquer",
+      "Cartographier", "Mettre en évidence les relations", "Détecter", "Diagnostiquer", "Examiner les causes"
+    ]
+  },
+  {
+    "niveau": 5,
+    "nom": "Évaluer",
+    "description": "Porter des jugements fondés sur des critères",
+    "verbes": [
+      "Juger", "Défendre", "Justifier", "Critiquer", "Évaluer",
+      "Argumenter", "Recommander", "Soutenir", "Apprécier", "Valider",
+      "Vérifier", "Hiérarchiser", "Sélectionner", "Conclure", "Pondérer",
+      "Mesurer", "Décider", "Réviser", "Sanctionner", "Estimer"
+    ]
+  },
+  {
+    "niveau": 6,
+    "nom": "Créer",
+    "description": "Assembler des éléments pour former un tout nouveau",
+    "verbes": [
+      "Concevoir", "Planifier", "Inventer", "Formuler", "Élaborer",
+      "Composer", "Synthétiser", "Générer", "Imaginer", "Innover",
+      "Designer", "Théoriser", "Modéliser", "Élaborer une stratégie", "Rédiger",
+      "Mettre en place", "Combiner", "Reconfigurer", "Construire", "Produire"
+    ]
+  }
+]

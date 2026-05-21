@@ -1,0 +1,32 @@
+@media print {
+  .app-header,
+  .app-sidebar,
+  .app-footer,
+  .mobile-nav,
+  .no-print {
+    display: none !important;
+  }
+
+  .app-main {
+    padding: 0;
+    max-width: 100%;
+  }
+
+  body {
+    font-size: 12pt;
+    color: #000;
+    background: #fff;
+  }
+
+  .print-section {
+    page-break-inside: avoid;
+  }
+
+  .print-break-before {
+    page-break-before: always;
+  }
+
+  a[href]::after {
+    content: none;
+  }
+}

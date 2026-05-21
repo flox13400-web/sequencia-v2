@@ -1,0 +1,21 @@
+{
+  "name": "SEQUENCIA",
+  "short_name": "SEQUENCIA",
+  "description": "Outil de conception pédagogique",
+  "start_url": "/sequencia-v2/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/sequencia-v2/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/sequencia-v2/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

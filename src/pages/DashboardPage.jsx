@@ -1,0 +1,216 @@
+import { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'wouter';
+import {
+  BookOpen, FolderOpen, Plus, HelpCircle, Folder, Layers, Calendar, FileText, Upload
+} from 'lucide-react';
+import { useActivitesStore } from '@/stores/activitesStore';
+import { useProgrammesStore } from '@/stores/programmesStore';
+import { useSequencesStore } from '@/stores/sequencesStore';
+import { useSeancesStore } from '@/stores/seancesStore';
+import { readFileAsText, parseSqaFile, detectSqaType } from '@/utils/importSqa';
+import '@/styles/pages/dashboard.css';
+
+const HEX_CELLS = [
+  {
+    id: 'bibliotheque',
+    label: 'Bibliothèque',
+    icon: BookOpen,
+    href: '/bibliotheque',
+    primary: false,
+  },
+  {
+    id: 'creer',
+    label: 'Créer',
+    icon: Plus,
+    primary: true,
+    popup: [
+      { label: 'Nouveau programme', icon: Folder, href: '/programme/nouveau' },
+      { label: 'Nouvelle séquence', icon: Layers, href: '/sequence/nouvelle' },
+      { label: 'Nouvelle séance', icon: Calendar, href: '/seance/nouvelle' },
+      { label: 'Nouvelle activité', icon: FileText, href: '/activite/nouvelle' },
+    ],
+  },
+  {
+    id: 'ouvrir',
+    label: 'Ouvrir',
+    icon: FolderOpen,
+    primary: false,
+    popup: [
+      { label: 'Importer un fichier .sqa', icon: Upload, action: 'import' },
+    ],
+  },
+  {
+    id: 'aide',
+    label: 'Aide',
+    icon: HelpCircle,
+    href: '/aide',
+    primary: false,
+  },
+];
+
+function HexPopup({ items, onClose, onNavigate, onAction }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) onClose();
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [onClose]);
+
+  return (
+    <div className="hex-popup" ref={ref} role="menu">
+      {items.map((item, i) => {
+        const Icon = item.icon;
+        if (item.divider) return <div key={i} className="hex-popup-divider" />;
+        if (item.href) {
+          return (
+            <button
+              key={item.label}
+              type="button"
+              className="hex-popup-item"
+              role="menuitem"
+              onClick={() => { onNavigate(item.href); onClose(); }}
+            >
+              <Icon size="var(--icon-size-md)" strokeWidth="var(--icon-stroke-default)" />
+              {item.label}
+            </button>
+          );
+        }
+        return (
+          <button
+            key={item.label}
+            type="button"
+            className="hex-popup-item"
+            role="menuitem"
+            onClick={() => { onAction(item.action); onClose(); }}
+          >
+            <Icon size="var(--icon-size-md)" strokeWidth="var(--icon-stroke-default)" />
+            {item.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+export default function DashboardPage() {
+  const [, navigate] = useLocation();
+  const [openPopup, setOpenPopup] = useState(null);
+  const [importError, setImportError] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const activites = useActivitesStore((s) => s.activites);
+  const programmes = useProgrammesStore((s) => s.programmes);
+  const sequences = useSequencesStore((s) => s.sequences);
+  const seances = useSeancesStore((s) => s.seances);
+
+  const stats = [
+    { label: 'Activités', count: activites.length },
+    { label: 'Séances', count: seances.length },
+    { label: 'Séquences', count: sequences.length },
+    { label: 'Programmes', count: programmes.length },
+  ];
+
+  const handleCellClick = (cell) => {
+    if (cell.href) { navigate(cell.href); return; }
+    if (cell.popup) {
+      setOpenPopup(openPopup === cell.id ? null : cell.id);
+    }
+  };
+
+  const handleImportFile = async (file) => {
+    if (!file) return;
+    try {
+      const text = await readFileAsText(file);
+      const { data, errors } = parseSqaFile(text);
+      if (errors.length > 0) { setImportError(errors.join(' ')); return; }
+      const type = detectSqaType(data);
+      if (type === 'programme') navigate('/programme/nouveau?import=1');
+      else navigate('/bibliotheque');
+    } catch {
+      setImportError('Impossible de lire le fichier.');
+    }
+  };
+
+  const handleAction = (action) => {
+    if (action === 'import') fileInputRef.current?.click();
+  };
+
+  return (
+    <main>
+      <div className="dashboard-hero">
+        <h1 className="dashboard-hero-title">Bienvenue dans SEQUENCIA</h1>
+        <p className="dashboard-hero-subtitle">
+          Votre atelier de conception pédagogique — 100% hors ligne, entièrement le vôtre.
+        </p>
+
+        {importError && (
+          <div className="builder-alert builder-alert-danger" style={{ maxWidth: 480, margin: '0 auto var(--space-4)' }}>
+            {importError}
+            <button type="button" onClick={() => setImportError(null)} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit' }}>×</button>
+          </div>
+        )}
+
+        <div className="hex-grid" role="navigation" aria-label="Actions principales">
+          {HEX_CELLS.map((cell) => {
+            const Icon = cell.icon;
+            return (
+              <div key={cell.id} style={{ position: 'relative' }}>
+                <button
+                  type="button"
+                  className={`hex-cell ${cell.primary ? 'hex-primary' : ''}`}
+                  onClick={() => handleCellClick(cell)}
+                  aria-label={cell.label}
+                  aria-haspopup={cell.popup ? 'true' : undefined}
+                  aria-expanded={cell.popup ? openPopup === cell.id : undefined}
+                >
+                  <div className="hex-cell-inner">
+                    <Icon
+                      className="hex-cell-icon"
+                      size="var(--icon-size-xl)"
+                      strokeWidth="var(--icon-stroke-default)"
+                    />
+                    <span className="hex-cell-label">{cell.label}</span>
+                  </div>
+                </button>
+
+                {cell.popup && openPopup === cell.id && (
+                  <HexPopup
+                    items={cell.popup}
+                    onClose={() => setOpenPopup(null)}
+                    onNavigate={navigate}
+                    onAction={handleAction}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {stats.some((s) => s.count > 0) && (
+          <div style={{ display: 'flex', gap: 'var(--space-6)', justifyContent: 'center', marginTop: 'var(--space-8)', flexWrap: 'wrap' }}>
+            {stats.map(({ label, count }) =>
+              count > 0 ? (
+                <div key={label} style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 700, color: 'var(--color-accent)' }}>{count}</div>
+                  <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>{label}</div>
+                </div>
+              ) : null
+            )}
+          </div>
+        )}
+      </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".sqa,.json"
+        style={{ display: 'none' }}
+        onChange={(e) => handleImportFile(e.target.files?.[0])}
+        aria-label="Importer un fichier .sqa"
+      />
+    </main>
+  );
+}

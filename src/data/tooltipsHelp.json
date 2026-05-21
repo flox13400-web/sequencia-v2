@@ -1,0 +1,14 @@
+{
+  "verbe_action": "Le verbe d'action décrit ce que l'apprenant sera capable de faire à l'issue de l'activité. Choisissez un verbe précis et observable.",
+  "niveau_action": "Le niveau d'action (1 à 6) indique la complexité cognitive visée : de la simple mémorisation (1) à la création originale (6).",
+  "opo_activite": "L'objectif pédagogique opérationnel décrit de manière précise et mesurable ce que l'apprenant saura faire.",
+  "opo_phrase": "Formulation complète : \"À l'issue de cette séance, l'apprenant sera capable de...\"",
+  "type_fiche": "Une activité d'apprentissage transmet des connaissances ou compétences. Une activité d'évaluation mesure les acquis.",
+  "sous_type_evaluation": "Diagnostique : en début de formation. Formative : pendant la formation. Sommative : en fin de formation pour valider les acquis.",
+  "methode_pedagogique": "La méthode décrit le rôle du formateur et de l'apprenant. Elle influence le rythme d'attention (disponible en V2.1).",
+  "duree_minutes": "Durée en minutes utilisée pour les calculs automatiques de la jauge et des courbes.",
+  "contenu_ordonne": "Le programme contient une liste ordonnée de séquences et d'évaluations sommatives. Ces dernières sont placées librement entre les séquences.",
+  "evaluation_flottante": "Une évaluation sommative placée directement dans le programme, indépendamment des séquences. Elle valide l'objectif global.",
+  "cascade_niveaux": "La règle de cascade impose que le niveau d'action d'une fiche ne dépasse pas celui de sa séance, qui ne dépasse pas celui de sa séquence, etc.",
+  "liens_externes": "Liens vers des ressources en ligne (vidéos, documents). Un QR code peut être généré pour chaque lien et apparaître dans vos exports."
+}
