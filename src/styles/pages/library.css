@@ -39,6 +39,6 @@
   }
 
   .library-sidebar {
-    position: static;
+    display: none;
   }
 }

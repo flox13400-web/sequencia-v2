@@ -51,6 +51,7 @@
   }
 
   .mobile-drawer .app-sidebar {
+    display: block;
     position: static;
     width: 100%;
     height: auto;
