@@ -33,15 +33,31 @@ export default function ProgramBuilderPage() {
   const activites = useActivitesStore((s) => s.activites);
   const moveToCorbeille = useCorbeilleStore((s) => s.moveToCorbeille);
 
-  const [form, setForm] = useState(null);
+  const programmesCount = useProgrammesStore((s) => s.programmes.length);
+
+  // Initialisation synchrone : évite le flash blanc sur même session
+  const [form, setForm] = useState(() => {
+    if (isNew) return buildEmpty();
+    const existing = getProgrammeById(params.id);
+    return existing ? { ...existing } : null;
+  });
   const [saved, setSaved] = useState(false);
 
+  // Fallback rehydratation IndexedDB : relance si form toujours null après mise à jour du store
   useEffect(() => {
-    if (isNew) setForm(buildEmpty());
-    else {
+    if (isNew) return;
+    setForm((current) => {
+      if (current !== null) return current;
       const existing = getProgrammeById(params.id);
-      setForm(existing ? { ...existing } : buildEmpty());
-    }
+      return existing ? { ...existing } : buildEmpty();
+    });
+  }, [programmesCount]);
+
+  // Rechargement si l'ID change (navigation vers un autre programme)
+  useEffect(() => {
+    if (isNew) { setForm(buildEmpty()); return; }
+    const existing = getProgrammeById(params.id);
+    setForm(existing ? { ...existing } : null);
   }, [params.id]);
 
   // Re-sync form.contenu_ordonne from store after actions

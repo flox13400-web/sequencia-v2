@@ -25,16 +25,28 @@ export default function SequenceBuilderPage() {
   const addSeance = useSeancesStore((s) => s.addSeance);
   const allSeances = useSeancesStore((s) => s.seances);
   const moveToCorbeille = useCorbeilleStore((s) => s.moveToCorbeille);
+  const sequencesCount = useSequencesStore((s) => s.sequences.length);
 
-  const [form, setForm] = useState(null);
+  const [form, setForm] = useState(() => {
+    if (isNew) return buildEmpty();
+    const existing = getSequenceById(params.id);
+    return existing ? { ...existing } : null;
+  });
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    if (isNew) setForm(buildEmpty());
-    else {
+    if (isNew) return;
+    setForm((current) => {
+      if (current !== null) return current;
       const existing = getSequenceById(params.id);
-      setForm(existing ? { ...existing } : buildEmpty());
-    }
+      return existing ? { ...existing } : buildEmpty();
+    });
+  }, [sequencesCount]);
+
+  useEffect(() => {
+    if (isNew) { setForm(buildEmpty()); return; }
+    const existing = getSequenceById(params.id);
+    setForm(existing ? { ...existing } : null);
   }, [params.id]);
 
   if (!form) return null;

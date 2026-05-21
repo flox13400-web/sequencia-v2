@@ -25,17 +25,29 @@ export default function SeanceBuilderPage() {
   const activites = useActivitesStore((s) => s.activites);
   const moveToCorbeille = useCorbeilleStore((s) => s.moveToCorbeille);
   const removeSeance = useSeancesStore((s) => s.removeSeance);
+  const seancesCount = useSeancesStore((s) => s.seances.length);
 
-  const [form, setForm] = useState(null);
+  const [form, setForm] = useState(() => {
+    if (isNew) return buildEmpty();
+    const existing = getSeanceById(params.id);
+    return existing ? { ...existing, fiches: [...(existing.fiches || [])] } : null;
+  });
   const [showAssign, setShowAssign] = useState(false);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    if (isNew) setForm(buildEmpty());
-    else {
+    if (isNew) return;
+    setForm((current) => {
+      if (current !== null) return current;
       const existing = getSeanceById(params.id);
-      setForm(existing ? { ...existing, fiches: [...(existing.fiches || [])] } : buildEmpty());
-    }
+      return existing ? { ...existing, fiches: [...(existing.fiches || [])] } : buildEmpty();
+    });
+  }, [seancesCount]);
+
+  useEffect(() => {
+    if (isNew) { setForm(buildEmpty()); return; }
+    const existing = getSeanceById(params.id);
+    setForm(existing ? { ...existing, fiches: [...(existing.fiches || [])] } : null);
   }, [params.id]);
 
   if (!form) return null;

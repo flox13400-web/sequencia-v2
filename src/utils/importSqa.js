@@ -136,13 +136,15 @@ export function importSqaData(data, actions, existingIds = {}) {
     }
   }
 
-  if (data.programme && !programmeIds.has(data.programme.id)) {
+  if (data.programme) {
     const prog = data.programme;
-    addProgramme({
-      ...prog,
-      objectif_verbe_action: prog.objectif_verbe_action ?? prog.verbe_action ?? '',
-    });
-    counts.programmes++;
+    if (!programmeIds.has(prog.id)) {
+      addProgramme({
+        ...prog,
+        objectif_verbe_action: prog.objectif_verbe_action ?? prog.verbe_action ?? '',
+      });
+      counts.programmes++;
+    }
     counts.programmeId = prog.id;
   }
 
