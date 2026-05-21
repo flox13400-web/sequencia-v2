@@ -16,13 +16,13 @@ const CREATE_ITEMS = [
   { href: '/activite/nouvelle', label: 'Nouvelle activité', icon: FileText },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ inDrawer = false }) {
   const [location] = useLocation();
 
   const isActive = (href) => location === href;
 
   return (
-    <aside className="app-sidebar desktop-only">
+    <aside className={`app-sidebar${inDrawer ? '' : ' desktop-only'}`}>
       <nav className="sidebar-nav">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
           <Link

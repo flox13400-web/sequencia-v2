@@ -90,7 +90,7 @@ export default function App() {
         aria-hidden="true"
       />
       <div className={`mobile-drawer ${sidebarOpen ? 'open' : ''}`} role="dialog" aria-label="Menu de navigation">
-        <Sidebar />
+        <Sidebar inDrawer />
       </div>
 
       <div className="app-body">
