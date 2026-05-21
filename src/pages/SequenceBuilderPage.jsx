@@ -76,14 +76,14 @@ export default function SequenceBuilderPage() {
 
   const handleDelete = () => {
     if (!isNew) { moveToCorbeille('sequence', form); removeSequence(form.id); }
-    navigate(-1);
+    navigate('/sequences');
   };
 
   return (
     <main>
       <div className="page-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', flexWrap: 'wrap' }}>
-          <button type="button" className="btn btn-ghost" onClick={() => navigate(-1)} aria-label="Retour">
+          <button type="button" className="btn btn-ghost" onClick={() => window.history.back()} aria-label="Retour">
             <ArrowLeft size="var(--icon-size-md)" strokeWidth="var(--icon-stroke-default)" />
           </button>
           <h1 className="page-title" style={{ margin: 0 }}>
