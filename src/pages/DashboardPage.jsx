@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import {
-  BookOpen, FolderOpen, Plus, HelpCircle, Folder, Layers, Calendar, FileText, Upload
+  BookOpen, FolderOpen, Plus, HelpCircle, Folder, Layers, Calendar, FileText, Upload, ChevronRight
 } from 'lucide-react';
 import { useActivitesStore } from '@/stores/activitesStore';
 import { useProgrammesStore } from '@/stores/programmesStore';
 import { useSequencesStore } from '@/stores/sequencesStore';
 import { useSeancesStore } from '@/stores/seancesStore';
 import { readFileAsText, parseSqaFile, importSqaData } from '@/utils/importSqa';
+import Button from '@/components/ui/Button';
 import '@/styles/pages/dashboard.css';
 
 const HEX_CELLS = [
@@ -215,6 +216,53 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+
+      <section className="dashboard-formations">
+        <div className="dashboard-section-header">
+          <h2 className="dashboard-section-title">Mes formations</h2>
+          <Button variant="secondary" size="sm" onClick={() => navigate('/programme/nouveau')}>
+            <Plus size="var(--icon-size-sm)" strokeWidth="var(--icon-stroke-default)" />
+            Nouvelle
+          </Button>
+        </div>
+
+        {programmes.length === 0 ? (
+          <div className="dashboard-formations-empty">
+            <Folder size="var(--icon-size-xl)" strokeWidth="var(--icon-stroke-default)" className="dashboard-formations-empty-icon" />
+            <p>Aucune formation pour l'instant.</p>
+            <p className="dashboard-formations-empty-hint">Créez votre premier programme pédagogique ou importez un fichier&nbsp;.sqa.</p>
+            <Button variant="primary" onClick={() => navigate('/programme/nouveau')}>
+              <Plus size="var(--icon-size-md)" strokeWidth="var(--icon-stroke-default)" />
+              Créer une formation
+            </Button>
+          </div>
+        ) : (
+          <div className="dashboard-formations-grid">
+            {programmes.map((prog) => (
+              <button
+                key={prog.id}
+                type="button"
+                className="dashboard-formation-card"
+                onClick={() => navigate(`/programme/${prog.id}`)}
+              >
+                <Folder
+                  size="var(--icon-size-lg)"
+                  strokeWidth="var(--icon-stroke-default)"
+                  className="dashboard-formation-card-icon"
+                />
+                <div className="dashboard-formation-card-body">
+                  <div className="dashboard-formation-card-title">{prog.titre || 'Formation sans titre'}</div>
+                  <div className="dashboard-formation-card-meta">
+                    {prog.contenu_ordonne?.length || 0} séquence{(prog.contenu_ordonne?.length || 0) !== 1 ? 's' : ''}
+                    {prog.objectif_verbe_action ? ` · ${prog.objectif_verbe_action}` : ''}
+                  </div>
+                </div>
+                <ChevronRight size="var(--icon-size-md)" strokeWidth="var(--icon-stroke-default)" />
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
 
       <input
         ref={fileInputRef}
