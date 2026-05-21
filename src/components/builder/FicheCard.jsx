@@ -4,7 +4,7 @@ import Tag from '@/components/ui/Tag';
 import '@/styles/components/builder.css';
 
 export default function FicheCard({ fiche, onRemove }) {
-  const activite = useActivitesStore((s) => s.getActiviteById(fiche.activite_id));
+  const activite = useActivitesStore((s) => s.activites.find((a) => a.id === fiche.activite_id) ?? null);
 
   if (!activite) return null;
 

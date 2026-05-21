@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { ChevronDown, ChevronRight, AlertTriangle } from 'lucide-react';
 import { useSequencesStore } from '@/stores/sequencesStore';
 import { useSeancesStore } from '@/stores/seancesStore';
@@ -31,8 +31,12 @@ function FloatingEvalNode({ activite, onRemove }) {
 
 function SequenceNode({ sequenceId, onRemoveFromProgramme }) {
   const [expanded, setExpanded] = useState(true);
-  const sequence = useSequencesStore((s) => s.getSequenceById(sequenceId));
-  const seances = useSeancesStore((s) => s.getSeancesByIds(sequence?.seances_ids || []));
+  const sequence = useSequencesStore((s) => s.sequences.find((sq) => sq.id === sequenceId) ?? null);
+  const allSeances = useSeancesStore((s) => s.seances);
+  const seances = useMemo(
+    () => (sequence?.seances_ids || []).map((id) => allSeances.find((s) => s.id === id)).filter(Boolean),
+    [sequence, allSeances]
+  );
 
   if (!sequence) return null;
 
